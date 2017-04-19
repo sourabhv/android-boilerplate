@@ -1,0 +1,153 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'com.jakewharton.hugo'
+apply plugin: 'me.tatarka.retrolambda'
+
+ext {
+    FIREBASE_VERSION = "10.2.1"
+    SUPPORT_LIB_VERSION = "25.3.0"
+    RETROFIT_VERSION = "2.2.0"
+    AUTOVALUE_VERSION = "1.4.1"
+
+    DEBUGKEY_STOREFILE = "../debug.keystore"
+    DEBUGKEY_STOREPASSWORD = "android"
+    DEBUGKEY_KEYALIAS = "androiddebugkey"
+    DEBUGKEY_KEYPASSWORD = "android"
+}
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+    defaultConfig {
+        applicationId "com.sourabhv.leisure"
+        minSdkVersion 19
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    dexOptions {
+        dexInProcess = true
+    }
+    dataBinding {
+        enabled = true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file(DEBUGKEY_STOREFILE)
+            storePassword DEBUGKEY_STOREPASSWORD
+            keyAlias DEBUGKEY_KEYALIAS
+            keyPassword DEBUGKEY_KEYPASSWORD
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".dev"
+            versionNameSuffix " Dev"
+            minifyEnabled false
+            shrinkResources false
+            useProguard false
+            signingConfig signingConfigs.debug
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.1'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
+        classpath 'me.tatarka:gradle-retrolambda:3.6.0'
+    }
+}
+
+repositories {
+    maven {url "https://clojars.org/repo/"}
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    // Support Libs
+    compile "com.android.support:appcompat-v7:$SUPPORT_LIB_VERSION"
+    compile "com.android.support:design:$SUPPORT_LIB_VERSION"
+    compile "com.android.support:support-vector-drawable:$SUPPORT_LIB_VERSION"
+    compile "com.android.support:preference-v14:$SUPPORT_LIB_VERSION"
+    compile "com.android.support:cardview-v7:$SUPPORT_LIB_VERSION"
+    compile "com.android.support:recyclerview-v7:$SUPPORT_LIB_VERSION"
+    compile "com.android.support:palette-v7:$SUPPORT_LIB_VERSION"
+
+    // Firebase
+    compile "com.google.firebase:firebase-core:$FIREBASE_VERSION"
+    compile "com.google.firebase:firebase-crash:$FIREBASE_VERSION"
+    compile "com.google.firebase:firebase-messaging:$FIREBASE_VERSION"
+    compile "com.google.firebase:firebase-config:$FIREBASE_VERSION"
+    compile "com.google.firebase:firebase-invites:$FIREBASE_VERSION"
+    compile "com.google.firebase:firebase-appindexing:$FIREBASE_VERSION"
+
+    // Dagger
+    compile 'com.google.dagger:dagger:2.10'
+    apt 'com.google.dagger:dagger-compiler:2.10'
+
+    // Rx
+    compile 'io.reactivex.rxjava2:rxjava:2.0.8'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0-RC1'
+    compile 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
+    compile 'com.trello.rxlifecycle2:rxlifecycle:2.0.1'
+    compile 'com.trello.rxlifecycle2:rxlifecycle-android:2.0.1'
+    compile 'com.trello.rxlifecycle2:rxlifecycle-components:2.0.1'
+
+    // Retrofit
+    compile "com.squareup.retrofit2:retrofit:$RETROFIT_VERSION"
+    compile "com.squareup.retrofit2:converter-gson:$RETROFIT_VERSION"
+    compile "com.squareup.retrofit2:adapter-rxjava:$RETROFIT_VERSION"
+    compile 'com.squareup.okhttp3:logging-interceptor:3.6.0'
+
+    // AutoValue
+    provided "com.google.auto.value:auto-value:$AUTOVALUE_VERSION"
+    apt "com.google.auto.value:auto-value:$AUTOVALUE_VERSION"
+    apt 'com.squareup.auto.value:auto-value-redacted:1.0.0'
+    apt 'com.ryanharter.auto.value:auto-value-parcel:0.2.5'
+    apt 'com.ryanharter.auto.value:auto-value-gson:0.4.6'
+    provided 'com.ryanharter.auto.value:auto-value-gson:0.4.6'
+
+    // Leaks
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+
+    // Other
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.jakewharton.timber:timber:4.5.1'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'jp.wasabeef:glide-transformations:2.0.2'
+    compile 'frankiesardo:icepick:3.2.0'
+    provided 'frankiesardo:icepick-processor:3.2.0'
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude group: 'com.google.code.findbugs'
+    })
+    testCompile 'junit:junit:4.12'
+}
+
+apply plugin: 'com.google.gms.google-services'
