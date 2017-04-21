@@ -1,13 +1,14 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'com.jakewharton.hugo'
 apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.github.ben-manes.versions'
 
 ext {
     FIREBASE_VERSION = "10.2.1"
-    SUPPORT_LIB_VERSION = "25.3.0"
+    SUPPORT_LIB_VERSION = "25.3.1"
     RETROFIT_VERSION = "2.2.0"
     AUTOVALUE_VERSION = "1.4.1"
+    DBFLOW_VERSION = "4.0.0-beta7"
 
     DEBUGKEY_STOREFILE = "../debug.keystore"
     DEBUGKEY_STOREPASSWORD = "android"
@@ -31,8 +32,13 @@ android {
     dexOptions {
         dexInProcess = true
     }
+
     dataBinding {
         enabled = true
+    }
+
+    packagingOptions {
+        exclude 'META-INF/rxjava.properties'
     }
 
     compileOptions {
@@ -71,17 +77,19 @@ android {
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.1'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
         classpath 'me.tatarka:gradle-retrolambda:3.6.0'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.14.0'
     }
 }
 
 repositories {
-    maven {url "https://clojars.org/repo/"}
+    maven { url "https://clojars.org/repo/" }
+    maven { url "https://www.jitpack.io" }
 }
 
 dependencies {
@@ -105,10 +113,10 @@ dependencies {
 
     // Dagger
     compile 'com.google.dagger:dagger:2.10'
-    apt 'com.google.dagger:dagger-compiler:2.10'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.10'
 
     // Rx
-    compile 'io.reactivex.rxjava2:rxjava:2.0.8'
+    compile 'io.reactivex.rxjava2:rxjava:2.0.9'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0-RC1'
     compile 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
@@ -119,21 +127,27 @@ dependencies {
     // Retrofit
     compile "com.squareup.retrofit2:retrofit:$RETROFIT_VERSION"
     compile "com.squareup.retrofit2:converter-gson:$RETROFIT_VERSION"
-    compile "com.squareup.retrofit2:adapter-rxjava:$RETROFIT_VERSION"
-    compile 'com.squareup.okhttp3:logging-interceptor:3.6.0'
+    compile "com.squareup.retrofit2:adapter-rxjava2:$RETROFIT_VERSION"
+    compile 'com.squareup.okhttp3:logging-interceptor:3.7.0'
 
     // AutoValue
     provided "com.google.auto.value:auto-value:$AUTOVALUE_VERSION"
-    apt "com.google.auto.value:auto-value:$AUTOVALUE_VERSION"
-    apt 'com.squareup.auto.value:auto-value-redacted:1.0.0'
-    apt 'com.ryanharter.auto.value:auto-value-parcel:0.2.5'
-    apt 'com.ryanharter.auto.value:auto-value-gson:0.4.6'
+    annotationProcessor "com.google.auto.value:auto-value:$AUTOVALUE_VERSION"
+    annotationProcessor 'com.squareup.auto.value:auto-value-redacted:1.0.1'
+    annotationProcessor 'com.ryanharter.auto.value:auto-value-parcel:0.2.5'
+    annotationProcessor 'com.ryanharter.auto.value:auto-value-gson:0.4.6'
     provided 'com.ryanharter.auto.value:auto-value-gson:0.4.6'
 
     // Leaks
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+
+    // DBFlow
+    annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:${DBFLOW_VERSION}"
+    compile "com.github.Raizlabs.DBFlow:dbflow-core:${DBFLOW_VERSION}"
+    compile "com.github.Raizlabs.DBFlow:dbflow:${DBFLOW_VERSION}"
+    compile "com.github.Raizlabs.DBFlow:dbflow-rx2:${DBFLOW_VERSION}"
 
     // Other
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
@@ -143,6 +157,8 @@ dependencies {
     compile 'jp.wasabeef:glide-transformations:2.0.2'
     compile 'frankiesardo:icepick:3.2.0'
     provided 'frankiesardo:icepick-processor:3.2.0'
+    compile 'com.hannesdorfmann.mosby3:viewstate:3.0.3'
+    compile 'com.hannesdorfmann.mosby3:mvp-lce:3.0.3'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude group: 'com.google.code.findbugs'
